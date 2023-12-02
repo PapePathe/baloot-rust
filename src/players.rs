@@ -18,7 +18,7 @@ impl Player {
 
 
 impl IPlayer for Player {
-    fn send_message(&mut self, m: Message) {}
+    fn send_message(&mut self, _m: Message) {}
 }
 
 #[cfg(test)]

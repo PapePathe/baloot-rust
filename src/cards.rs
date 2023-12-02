@@ -40,7 +40,7 @@ impl Card {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum CardColor {
     DIAMONDS,
     HEARTS,
@@ -59,7 +59,7 @@ impl std::fmt::Display for CardColor {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum CardFamily {
     ACE,
     SEVEN,
