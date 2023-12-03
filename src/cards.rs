@@ -1,5 +1,4 @@
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Card {
     pub family: CardFamily,
     pub color: CardColor,
@@ -13,34 +12,21 @@ impl Card {
         }
     }
 
-    pub fn to_string(&self) -> String {
-        format!("Card[color: {} family: {}]", self.color, self.family)
-    }
-
     pub fn is_ace(self) -> bool {
-        match self.family {
-            CardFamily::ACE => true,
-            _ => false,
-        }
+        matches!(self.family, CardFamily::ACE)
     }
     pub fn is_nine(self) -> bool {
         false
     }
     pub fn is_jack(self) -> bool {
-        match self.family {
-            CardFamily::JACK => true,
-            _ => false,
-        }
+        matches!(self.family, CardFamily::JACK)
     }
     pub fn is_ten(self) -> bool {
-        match self.family {
-            CardFamily::TEN => true,
-            _ => false,
-        }
+        matches!(self.family, CardFamily::TEN)
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum CardColor {
     DIAMONDS,
     HEARTS,
@@ -59,7 +45,7 @@ impl std::fmt::Display for CardColor {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CardFamily {
     ACE,
     SEVEN,

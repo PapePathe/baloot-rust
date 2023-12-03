@@ -5,6 +5,7 @@ use crate::message::Message;
 use std::fmt::Debug;
 use std::fmt::Formatter;
 
+#[derive(Clone, Debug)]
 pub struct MachinePlayer {
     cards: Vec<Card>,
     playing_cards: Vec<Card>,
@@ -13,14 +14,14 @@ pub struct MachinePlayer {
 
 impl Debug for dyn IPlayer + 'static {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "{}", "iplayer")
+        write!(f, "iplayer")
     }
 }
 
 impl MachinePlayer {
-    pub fn new() -> Self {
+    pub fn new(cards: Vec<Card>) -> Self {
         Self {
-            cards: vec![],
+            cards,
             playing_cards: vec![],
             deck: vec![],
         }
@@ -28,6 +29,19 @@ impl MachinePlayer {
 }
 
 impl IPlayer for MachinePlayer {
+    fn get_cards(&mut self) -> Vec<Card> {
+        self.cards.clone()
+    }
+
+    fn get_playing_cards(&mut self) -> Vec<Card> {
+        self.playing_cards.clone()
+    }
+
+    fn set_cards(&mut self, hand: Vec<Card>) {
+        self.cards = hand
+    }
+
+
     fn send_message(&mut self, m: Message) {
         match m {
             Message::TakingCards(cards) => {

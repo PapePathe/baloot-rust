@@ -1,7 +1,20 @@
 use belote::game::Game;
+use belote::players::Player;
+use belote::machine_player::MachinePlayer;
 
 fn main() {
-    let g: Game = Game::new();
+    let mut g: Game<MachinePlayer> = Game::new();
 
-    println!("{:?}", g);
+    g.add_player(MachinePlayer::new(vec![]));
+    g.add_player(MachinePlayer::new(vec![]));
+    g.add_player(MachinePlayer::new(vec![]));
+    g.add_player(MachinePlayer::new(vec![]));
+
+
+    for p in g.players {
+        println!("{:?}", p);
+        println!("{:?}", "\n");
+        println!("{:?}", "\n");
+    }
+
 }
