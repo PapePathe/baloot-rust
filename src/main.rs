@@ -1,5 +1,4 @@
 use belote::game::Game;
-use belote::players::Player;
 use belote::machine_player::MachinePlayer;
 
 fn main() {

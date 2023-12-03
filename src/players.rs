@@ -28,7 +28,7 @@ impl IPlayer for Player {
             Message::PlayingCards(cards) => {
                 self.playing_cards = cards;
             }
-            Message::Deck(deck) => {
+            Message::Deck(_) => {
                 println!("Wip: send deck through the network and wait for human reaction")
             }
             _ => {
