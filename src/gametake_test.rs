@@ -56,33 +56,15 @@ fn test_evaluate_spade() {
 fn test_evaluate_cent() {
     assert_eq!(Take::CENT.evaluate(vec![]), (false, 0));
     assert_eq!(
-        Take::CENT.evaluate(vec![
-            Card::new(CardColor::CLUBS, CardFamily::ACE),
-            Card::new(CardColor::HEARTS, CardFamily::ACE),
-            Card::new(CardColor::CLUBS, CardFamily::TEN),
-            Card::new(CardColor::CLUBS, CardFamily::QUEEN),
-            Card::new(CardColor::CLUBS, CardFamily::KING),
-        ]),
+        Take::CENT.evaluate(hand_test::two_of_family(CardFamily::ACE)),
         (true, 0)
     );
     assert_eq!(
-        Take::CENT.evaluate(vec![
-            Card::new(CardColor::CLUBS, CardFamily::ACE),
-            Card::new(CardColor::HEARTS, CardFamily::ACE),
-            Card::new(CardColor::DIAMONDS, CardFamily::ACE),
-            Card::new(CardColor::SPADES, CardFamily::TEN),
-            Card::new(CardColor::CLUBS, CardFamily::KING),
-        ]),
+        Take::CENT.evaluate(hand_test::three_of_family(CardFamily::ACE)),
         (true, 0)
     );
     assert_eq!(
-        Take::CENT.evaluate(vec![
-            Card::new(CardColor::CLUBS, CardFamily::ACE),
-            Card::new(CardColor::HEARTS, CardFamily::ACE),
-            Card::new(CardColor::DIAMONDS, CardFamily::ACE),
-            Card::new(CardColor::SPADES, CardFamily::ACE),
-            Card::new(CardColor::CLUBS, CardFamily::KING),
-        ]),
+        Take::CENT.evaluate(hand_test::four_of_family(CardFamily::ACE)),
         (true, 0)
     )
 }
@@ -91,23 +73,15 @@ fn test_evaluate_cent() {
 fn test_evaluate_tout() {
     assert_eq!(Take::TOUT.evaluate(vec![]), (false, 0));
     assert_eq!(
-        Take::TOUT.evaluate(vec![
-            Card::new(CardColor::CLUBS, CardFamily::JACK),
-            Card::new(CardColor::CLUBS, CardFamily::NINE),
-            Card::new(CardColor::HEARTS, CardFamily::JACK),
-            Card::new(CardColor::CLUBS, CardFamily::HEIGHT),
-            Card::new(CardColor::CLUBS, CardFamily::SEVEN),
-        ]),
+        Take::TOUT.evaluate(hand_test::two_of_family(CardFamily::JACK)),
         (true, 0)
     );
     assert_eq!(
-        Take::TOUT.evaluate(vec![
-            Card::new(CardColor::CLUBS, CardFamily::JACK),
-            Card::new(CardColor::SPADES, CardFamily::JACK),
-            Card::new(CardColor::HEARTS, CardFamily::JACK),
-            Card::new(CardColor::CLUBS, CardFamily::HEIGHT),
-            Card::new(CardColor::CLUBS, CardFamily::SEVEN),
-        ]),
+        Take::TOUT.evaluate(hand_test::three_of_family(CardFamily::JACK)),
+        (true, 0)
+    );
+    assert_eq!(
+        Take::TOUT.evaluate(hand_test::four_of_family(CardFamily::JACK)),
         (true, 0)
     );
 }

@@ -1,6 +1,6 @@
 use crate::cards::Card;
-use crate::cards::CardFamily;
 use crate::cards::CardColor;
+use crate::cards::CardFamily;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Take(pub u8);
@@ -13,6 +13,17 @@ impl Take {
     pub const DIAMOND: Take = Take(2);
     pub const CLUBS: Take = Take(1);
     pub const SKIP: Take = Take(0);
+
+    pub fn takes() -> Vec<Take> {
+        return vec![
+            Take::CLUBS,
+            Take::DIAMOND,
+            Take::HEART,
+            Take::SPADE,
+            Take::CENT,
+            Take::TOUT,
+        ];
+    }
 
     fn has_two_of(self, family: CardFamily, cards: Vec<Card>) -> bool {
         let items: Vec<&Card> = cards
@@ -28,7 +39,7 @@ impl Take {
         let nine = Card::new(color, CardFamily::NINE);
 
         if cards.contains(&jack) && cards.contains(&nine) {
-            return true
+            return true;
         }
 
         false
@@ -52,34 +63,31 @@ impl Take {
             }
             4 => {
                 if self.has_jack_and_nine(CardColor::SPADES, cards) {
-                    return (true, 0)
+                    return (true, 0);
                 }
 
                 (false, 0)
             }
             3 => {
                 if self.has_jack_and_nine(CardColor::HEARTS, cards) {
-                    return (true, 0)
+                    return (true, 0);
                 }
 
                 (false, 0)
-
             }
             2 => {
                 if self.has_jack_and_nine(CardColor::DIAMONDS, cards) {
-                    return (true, 0)
+                    return (true, 0);
                 }
 
                 (false, 0)
-
             }
             1 => {
                 if self.has_jack_and_nine(CardColor::CLUBS, cards) {
-                    return (true, 0)
+                    return (true, 0);
                 }
 
                 (false, 0)
-
             }
             _ => (false, 0),
         }
