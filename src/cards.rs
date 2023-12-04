@@ -1,3 +1,5 @@
+use crate::gametake::GameTake;
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Card {
     pub family: CardFamily,
@@ -24,59 +26,176 @@ impl Card {
     pub fn is_ten(self) -> bool {
         matches!(self.family, CardFamily::TEN)
     }
-}
 
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum CardColor {
-    DIAMONDS,
-    HEARTS,
-    SPADES,
-    CLUBS,
-}
-
-impl std::fmt::Display for CardColor {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        match *self {
-            CardColor::CLUBS => write!(f, "Clubs"),
-            CardColor::DIAMONDS => write!(f, "Diamonds"),
-            CardColor::HEARTS => write!(f, "hearts"),
-            CardColor::SPADES => write!(f, "spades"),
+    pub fn evaluate_for_take(self, take: GameTake) -> u8 {
+        match self.family {
+            CardFamily::JACK => match take {
+                GameTake::Tout(_) => 20,
+                GameTake::Cent(_) => 2,
+                GameTake::Spade(_) => match self.color {
+                    CardColor::SPADES => 20,
+                    _ => 2,
+                },
+                GameTake::Club(_) => match self.color {
+                    CardColor::CLUBS => 20,
+                    _ => 2,
+                },
+                GameTake::Diamond(_) => match self.color {
+                    CardColor::DIAMONDS => 20,
+                    _ => 2,
+                },
+                GameTake::Heart(_) => match self.color {
+                    CardColor::HEARTS => 20,
+                    _ => 2,
+                },
+                GameTake::Skip(_) => todo!()
+            },
+            CardFamily::NINE => match take {
+                GameTake::Tout(_) => 14,
+                GameTake::Cent(_) => 0,
+                GameTake::Spade(_) => match self.color {
+                    CardColor::SPADES => 14,
+                    _ => 0,
+                },
+                GameTake::Club(_) => match self.color {
+                    CardColor::CLUBS => 14,
+                    _ => 0,
+                },
+                GameTake::Heart(_) => match self.color {
+                    CardColor::HEARTS => 14,
+                    _ => 0,
+                },
+                GameTake::Diamond(_) => match self.color {
+                    CardColor::DIAMONDS => 14,
+                    _ => 0,
+                },
+                GameTake::Skip(_) => todo!()
+            },
+            CardFamily::ACE => match take {
+                _ => 11,
+            },
+            CardFamily::TEN => match take {
+                _ => 10,
+            },
+            CardFamily::KING => match take {
+                _ => 4,
+            },
+            CardFamily::QUEEN => match take {
+                _ => 3,
+            },
+            CardFamily::HEIGHT => match take {
+                _ => 0,
+            },
+            CardFamily::SEVEN => match take {
+                _ => 0,
+            },
+            _ => todo!(),
         }
     }
 }
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum CardFamily {
-    ACE,
-    SEVEN,
-    HEIGHT,
-    NINE,
-    TEN,
-    JACK,
-    KING,
-    QUEEN,
-}
-
-impl std::fmt::Display for CardFamily {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        match *self {
-            CardFamily::ACE => write!(f, "A"),
-            CardFamily::HEIGHT => write!(f, "8"),
-            CardFamily::JACK => write!(f, "V"),
-            CardFamily::KING => write!(f, "K"),
-            CardFamily::NINE => write!(f, "9"),
-            CardFamily::QUEEN => write!(f, "D"),
-            CardFamily::SEVEN => write!(f, "7"),
-            CardFamily::TEN => write!(f, "10"),
-        }
-    }
-}
-
-//   static AsPique: Card = Card::new(CardColor::SPADES, CardFamily::ACE);
 
 #[cfg(test)]
 mod cards_test {
     use crate::cards::*;
+    use crate::gametake::Take;
+
+    #[test]
+    fn test_evaluate_for_take_cent() {
+        let c = Card::new(CardColor::SPADES, CardFamily::ACE);
+        assert_eq!(c.evaluate_for_take(GameTake::Cent(Take::CENT)), 11);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::TEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Cent(Take::CENT)), 10);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::KING);
+        assert_eq!(c.evaluate_for_take(GameTake::Cent(Take::CENT)), 4);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::QUEEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Cent(Take::CENT)), 3);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::JACK);
+        assert_eq!(c.evaluate_for_take(GameTake::Cent(Take::CENT)), 2);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::NINE);
+        assert_eq!(c.evaluate_for_take(GameTake::Cent(Take::CENT)), 0);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::HEIGHT);
+        assert_eq!(c.evaluate_for_take(GameTake::Cent(Take::CENT)), 0);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::SEVEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Cent(Take::CENT)), 0);
+    }
+
+    #[test]
+    fn test_evaluate_for_take_spades() {
+        let c = Card::new(CardColor::SPADES, CardFamily::JACK);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 20);
+
+        let c = Card::new(CardColor::CLUBS, CardFamily::JACK);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 2);
+
+        let c = Card::new(CardColor::HEARTS, CardFamily::JACK);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 2);
+
+        let c = Card::new(CardColor::DIAMONDS, CardFamily::JACK);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 2);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::NINE);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 14);
+
+        let c = Card::new(CardColor::CLUBS, CardFamily::NINE);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 0);
+
+        let c = Card::new(CardColor::HEARTS, CardFamily::NINE);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 0);
+
+        let c = Card::new(CardColor::DIAMONDS, CardFamily::NINE);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 0);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::ACE);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 11);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::TEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 10);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::KING);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 4);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::QUEEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 3);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::HEIGHT);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 0);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::SEVEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Spade(Take::SPADE)), 0);
+    }
+    #[test]
+    fn test_evaluate_for_take_tout() {
+        let c = Card::new(CardColor::SPADES, CardFamily::JACK);
+        assert_eq!(c.evaluate_for_take(GameTake::Tout(Take::TOUT)), 20);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::NINE);
+        assert_eq!(c.evaluate_for_take(GameTake::Tout(Take::TOUT)), 14);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::ACE);
+        assert_eq!(c.evaluate_for_take(GameTake::Tout(Take::TOUT)), 11);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::TEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Tout(Take::TOUT)), 10);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::KING);
+        assert_eq!(c.evaluate_for_take(GameTake::Tout(Take::TOUT)), 4);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::QUEEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Tout(Take::TOUT)), 3);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::HEIGHT);
+        assert_eq!(c.evaluate_for_take(GameTake::Tout(Take::TOUT)), 0);
+
+        let c = Card::new(CardColor::SPADES, CardFamily::SEVEN);
+        assert_eq!(c.evaluate_for_take(GameTake::Tout(Take::TOUT)), 0);
+    }
 
     #[test]
     fn test_new_card() {
@@ -134,3 +253,50 @@ mod cards_test {
         assert_eq!(c.is_ten(), false);
     }
 }
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum CardColor {
+    DIAMONDS,
+    HEARTS,
+    SPADES,
+    CLUBS,
+}
+
+impl std::fmt::Display for CardColor {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        match *self {
+            CardColor::CLUBS => write!(f, "Clubs"),
+            CardColor::DIAMONDS => write!(f, "Diamonds"),
+            CardColor::HEARTS => write!(f, "hearts"),
+            CardColor::SPADES => write!(f, "spades"),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum CardFamily {
+    ACE,
+    SEVEN,
+    HEIGHT,
+    NINE,
+    TEN,
+    JACK,
+    KING,
+    QUEEN,
+}
+
+impl std::fmt::Display for CardFamily {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        match *self {
+            CardFamily::ACE => write!(f, "A"),
+            CardFamily::HEIGHT => write!(f, "8"),
+            CardFamily::JACK => write!(f, "V"),
+            CardFamily::KING => write!(f, "K"),
+            CardFamily::NINE => write!(f, "9"),
+            CardFamily::QUEEN => write!(f, "D"),
+            CardFamily::SEVEN => write!(f, "7"),
+            CardFamily::TEN => write!(f, "10"),
+        }
+    }
+}
+
+//   static AsPique: Card = Card::new(CardColor::SPADES, CardFamily::ACE);
