@@ -6,20 +6,17 @@ use crate::gametake::Take;
 use crate::iplayers::IPlayer;
 use crate::message::Message;
 use crate::message::PlayerMessage;
-use tokio::join;
 
 use std::collections::HashMap;
 use std::fmt::Debug;
 
 use postage::dispatch::Sender;
-use postage::prelude::Sink;
 
 #[derive(Clone, Debug)]
 pub struct MachinePlayer {
     cards: Vec<Card>,
     playing_cards: Vec<Card>,
     deck: Vec<Card>,
-    sender: crossbeam_channel::Sender<PlayerMessage>,
 }
 
 impl MachinePlayer {
@@ -31,21 +28,20 @@ impl MachinePlayer {
                 .or_insert(vec![c.family]);
         }
 
-        return hm;
+        hm
     }
 
-    pub fn new(cards: Vec<Card>, sender: crossbeam_channel::Sender<PlayerMessage>) -> Self {
+    pub fn new(cards: Vec<Card>) -> Self {
         Self {
             cards,
             playing_cards: vec![],
             deck: vec![],
-            sender: sender,
         }
     }
 }
 
 impl IPlayer for MachinePlayer {
-    fn set_taking_channel(&mut self, sender: Sender<PlayerMessage>) {}
+    fn set_taking_channel(&mut self, _: Sender<PlayerMessage>) {}
 
     fn get_cards(&mut self) -> Vec<Card> {
         self.cards.clone()
@@ -66,13 +62,13 @@ impl IPlayer for MachinePlayer {
             }
             Message::PlayingCards(cards) => {
                 println!("Received playing cards {:?}, len: {}", cards, cards.len());
-                println!("");
+                println!();
                 self.playing_cards = cards;
             }
             Message::Deck(deck) => {
                 self.deck = deck;
             }
-            Message::PleaseTake => {
+            Message::PleaseTake(c) => {
                 println!("{:?}", self.clone().get_cards_tree());
                 let mut takes: Vec<(bool, GameTake, u8)> = vec![];
                 for t in Take::takes() {
@@ -85,21 +81,17 @@ impl IPlayer for MachinePlayer {
                     }
                 }
 
-                if takes.len() > 0 {
-                    let _ = self
-                        .sender
-                        .send(PlayerMessage::SetPlayerTake(takes[0].1.clone()));
+                if !takes.is_empty() {
+                    let _ = c.send(PlayerMessage::SetPlayerTake(takes[0].1.clone()));
                 } else {
-                    let _ = self
-                        .sender
-                        .send(PlayerMessage::SetPlayerTake(GameTake::Skip(Take::SKIP)));
+                    let _ = c.send(PlayerMessage::SetPlayerTake(GameTake::Skip(Take::SKIP)));
                 }
             }
-            Message::PleasePlay => {
+            Message::PleasePlay(channel) => {
                 let c = self.playing_cards.pop();
                 println!("remaining cards {:?}", self.playing_cards);
                 if let Some(c) = c {
-                    let _ = self.sender.send(PlayerMessage::PlayCard(c));
+                    let _ = channel.send(PlayerMessage::PlayCard(c));
                 }
             }
         }

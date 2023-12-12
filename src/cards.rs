@@ -71,24 +71,12 @@ impl Card {
                 },
                 GameTake::Skip(_) => todo!(),
             },
-            CardFamily::ACE => match take {
-                _ => 11,
-            },
-            CardFamily::TEN => match take {
-                _ => 10,
-            },
-            CardFamily::KING => match take {
-                _ => 4,
-            },
-            CardFamily::QUEEN => match take {
-                _ => 3,
-            },
-            CardFamily::HEIGHT => match take {
-                _ => 0,
-            },
-            CardFamily::SEVEN => match take {
-                _ => 0,
-            },
+            CardFamily::ACE => 11,
+            CardFamily::TEN => 10,
+            CardFamily::KING => 4,
+            CardFamily::QUEEN => 3,
+            CardFamily::HEIGHT => 0,
+            CardFamily::SEVEN => 0,
         }
     }
 }

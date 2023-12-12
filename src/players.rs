@@ -23,7 +23,7 @@ impl Player {
 }
 
 impl IPlayer for Player {
-    fn set_taking_channel(&mut self, sender: Sender<PlayerMessage>) {}
+    fn set_taking_channel(&mut self, _: Sender<PlayerMessage>) {}
 
     fn send_message(&mut self, m: Message) {
         match m {
@@ -36,11 +36,11 @@ impl IPlayer for Player {
             Message::Deck(_) => {
                 println!("Wip: send deck through the network and wait for human reaction")
             }
-            Message::PleaseTake => {
+            Message::PleaseTake(_) => {
                 println!("\n\n Your cards are: {:?}", self.cards);
                 println!("Please choose of the takes below")
             }
-            Message::PleasePlay => {
+            Message::PleasePlay(_) => {
                 println!("Please choose of the takes below");
             }
         }

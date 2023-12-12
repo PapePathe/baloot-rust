@@ -1,11 +1,10 @@
 use crate::cards::Card;
 use crate::gametake::GameTake;
-use postage::dispatch::Sender;
 
 #[derive(Debug)]
 pub enum Message {
-    PleaseTake,
-    PleasePlay,
+    PleaseTake(crossbeam_channel::Sender<PlayerMessage>),
+    PleasePlay(crossbeam_channel::Sender<PlayerMessage>),
     TakingCards(Vec<Card>),
     PlayingCards(Vec<Card>),
     Deck(Vec<Card>),

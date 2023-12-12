@@ -10,8 +10,6 @@ use rand::thread_rng;
 use std::fmt::Debug;
 use std::fmt::Formatter;
 
-use postage::dispatch;
-
 impl Debug for dyn IPlayer {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
         f.debug_struct("IPlayer").finish()
@@ -68,7 +66,6 @@ impl Game {
     }
 
     pub fn new() -> Self {
-        let disp = dispatch::channel::<PlayerMessage>(8);
         Self {
             players: vec![],
             cards: Self::shuffle_cards(),
@@ -82,7 +79,11 @@ impl Game {
         }
     }
 
-    pub fn add_player(&mut self, mut player: Box<dyn IPlayer>) {
+    pub fn add_player(
+        &mut self,
+        mut player: Box<dyn IPlayer>,
+        channel: crossbeam_channel::Sender<PlayerMessage>,
+    ) {
         if self.players.len() < 4 {
             let mut pcards: Vec<Card> = vec![];
 
@@ -98,7 +99,7 @@ impl Game {
         }
 
         if self.players.len() == 4 {
-            self.players[0].send_message(Message::PleaseTake);
+            self.players[0].send_message(Message::PleaseTake(channel));
         }
     }
 
@@ -106,8 +107,8 @@ impl Game {
         //println!("game {:?} received message {:?} from player", self, m)
     }
 
-    pub fn add_card(&mut self, c: Card) {
-        if self.decks.len() == 0 {
+    pub fn add_card(&mut self, c: Card, channel: crossbeam_channel::Sender<PlayerMessage>) {
+        if self.decks.is_empty() {
             self.decks.push(vec![]);
         }
 
@@ -115,21 +116,25 @@ impl Game {
 
         println!("current deck {:?}", self.current_deck);
         if self.decks[self.current_deck].len() < 4 {
-            self.players[self.decks[self.current_deck].len()].send_message(Message::PleasePlay);
+            self.players[self.decks[self.current_deck].len()]
+                .send_message(Message::PleasePlay(channel));
+        } else if self.current_deck < 7 {
+            self.current_deck += 1;
+            self.decks.push(vec![]);
+            self.players[0].send_message(Message::PleasePlay(channel));
         } else {
-            if self.current_deck < 7 {
-                self.current_deck += 1;
-                self.decks.push(vec![]);
-                self.players[0].send_message(Message::PleasePlay);
-            } else {
-                self.finished = true
-            }
+            self.finished = true
         }
 
         println!("game finished: {}", self.finished);
     }
 
-    pub fn add_take(&mut self, _: u8, take: GameTake) {
+    pub fn add_take(
+        &mut self,
+        _: u8,
+        take: GameTake,
+        channel: crossbeam_channel::Sender<PlayerMessage>,
+    ) {
         if take != GameTake::Skip(Take::SKIP) {
             self.take = take.clone();
         }
@@ -146,20 +151,21 @@ impl Game {
                         let mut c = self.cards.pop();
                         if let Some(v) = c.as_mut() {
                             pcards.push(*v);
-                            if let Some(pos) = self.cards.iter().position(|x| *x == *v) {
-                                self.cards.remove(pos);
-                            }
+                            // if let Some(pos) = self.cards.iter().position(|x| *x == *v) {
+                            // self.cards.remove(pos);
+                            // }
                         }
                     }
 
                     p.send_message(Message::PlayingCards(pcards))
                 }
 
-                self.players[0].send_message(Message::PleasePlay);
+                self.players[0].send_message(Message::PleasePlay(channel));
             }
             _ => {
                 if self.takes.len() < 4 {
-                    self.players[self.takes.len()].send_message(Message::PleaseTake)
+                    self.players[self.takes.len()]
+                        .send_message(Message::PleaseTake(channel.clone()))
                 }
                 if self.takes.len() == 4 {
                     self.started = true;
@@ -170,16 +176,15 @@ impl Game {
                             let mut c = self.cards.pop();
                             if let Some(v) = c.as_mut() {
                                 pcards.push(*v);
-                                if let Some(pos) = self.cards.iter().position(|x| *x == *v) {
-                                    self.cards.remove(pos);
-                                }
+                                // if let Some(pos) = self.cards.iter().position(|x| *x == *v) {
+                                // self.cards.remove(pos);
+                                // }
                             }
                         }
                         p.send_message(Message::PlayingCards(pcards))
                     }
 
-                    self.players[0].send_message(Message::PleasePlay)
-                } else {
+                    self.players[0].send_message(Message::PleasePlay(channel.clone()))
                 }
             }
         }

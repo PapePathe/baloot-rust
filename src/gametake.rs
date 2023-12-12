@@ -15,14 +15,14 @@ impl Take {
     pub const SKIP: Take = Take(0);
 
     pub fn takes() -> Vec<Take> {
-        return vec![
+        vec![
             Take::CLUBS,
             Take::DIAMOND,
             Take::HEART,
             Take::SPADE,
             Take::CENT,
             Take::TOUT,
-        ];
+        ]
     }
 
     fn has_two_of(self, family: CardFamily, cards: Vec<Card>) -> bool {
@@ -31,7 +31,7 @@ impl Take {
             .filter(|c| c.family == family)
             .collect::<Vec<_>>();
 
-        return items.len() >= 2;
+        items.len() >= 2
     }
 
     fn has_jack_and_nine(self, color: CardColor, cards: Vec<Card>) -> bool {
@@ -84,7 +84,7 @@ impl Take {
             }
             1 => {
                 if self.has_jack_and_nine(CardColor::CLUBS, cards) {
-                    return (true, GameTake::Tout(Take::TOUT), 0);
+                    return (true, GameTake::Club(Take::CLUBS), 0);
                 }
 
                 (false, GameTake::Skip(Take::SKIP), 0)
