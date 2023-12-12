@@ -45,51 +45,51 @@ impl Take {
         false
     }
 
-    pub fn evaluate(self, cards: Vec<Card>) -> (bool, u8) {
+    pub fn evaluate(self, cards: Vec<Card>) -> (bool, GameTake, u8) {
         match self.0 {
             6 => {
                 if self.has_two_of(CardFamily::JACK, cards) {
-                    return (true, 0);
+                    return (true, GameTake::Tout(Take::TOUT), 0);
                 }
 
-                (false, 0)
+                (false, GameTake::Skip(Take::SKIP), 0)
             }
             5 => {
                 if self.has_two_of(CardFamily::ACE, cards) {
-                    return (true, 0);
+                    return (true, GameTake::Cent(Take::CENT), 0);
                 }
 
-                (false, 0)
+                (false, GameTake::Skip(Take::SKIP), 0)
             }
             4 => {
                 if self.has_jack_and_nine(CardColor::SPADES, cards) {
-                    return (true, 0);
+                    return (true, GameTake::Spade(Take::SPADE), 0);
                 }
 
-                (false, 0)
+                (false, GameTake::Skip(Take::SKIP), 0)
             }
             3 => {
                 if self.has_jack_and_nine(CardColor::HEARTS, cards) {
-                    return (true, 0);
+                    return (true, GameTake::Heart(Take::HEART), 0);
                 }
 
-                (false, 0)
+                (false, GameTake::Skip(Take::SKIP), 0)
             }
             2 => {
                 if self.has_jack_and_nine(CardColor::DIAMONDS, cards) {
-                    return (true, 0);
+                    return (true, GameTake::Diamond(Take::DIAMOND), 0);
                 }
 
-                (false, 0)
+                (false, GameTake::Skip(Take::SKIP), 0)
             }
             1 => {
                 if self.has_jack_and_nine(CardColor::CLUBS, cards) {
-                    return (true, 0);
+                    return (true, GameTake::Tout(Take::TOUT), 0);
                 }
 
-                (false, 0)
+                (false, GameTake::Skip(Take::SKIP), 0)
             }
-            _ => (false, 0),
+            _ => (false, GameTake::Skip(Take::SKIP), 0),
         }
     }
 }

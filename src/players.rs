@@ -1,6 +1,9 @@
 use crate::cards::Card;
 use crate::iplayers::IPlayer;
 use crate::message::Message;
+use crate::message::PlayerMessage;
+
+use postage::dispatch::Sender;
 
 #[derive(Debug, Clone)]
 pub struct Player {
@@ -20,6 +23,8 @@ impl Player {
 }
 
 impl IPlayer for Player {
+    fn set_taking_channel(&mut self, sender: Sender<PlayerMessage>) {}
+
     fn send_message(&mut self, m: Message) {
         match m {
             Message::TakingCards(cards) => {
@@ -31,8 +36,12 @@ impl IPlayer for Player {
             Message::Deck(_) => {
                 println!("Wip: send deck through the network and wait for human reaction")
             }
-            _ => {
-                println!("Was no able to match message")
+            Message::PleaseTake => {
+                println!("\n\n Your cards are: {:?}", self.cards);
+                println!("Please choose of the takes below")
+            }
+            Message::PleasePlay => {
+                println!("Please choose of the takes below");
             }
         }
     }

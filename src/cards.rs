@@ -48,7 +48,7 @@ impl Card {
                     CardColor::HEARTS => 20,
                     _ => 2,
                 },
-                GameTake::Skip(_) => todo!()
+                GameTake::Skip(_) => todo!(),
             },
             CardFamily::NINE => match take {
                 GameTake::Tout(_) => 14,
@@ -69,7 +69,7 @@ impl Card {
                     CardColor::DIAMONDS => 14,
                     _ => 0,
                 },
-                GameTake::Skip(_) => todo!()
+                GameTake::Skip(_) => todo!(),
             },
             CardFamily::ACE => match take {
                 _ => 11,
@@ -89,7 +89,6 @@ impl Card {
             CardFamily::SEVEN => match take {
                 _ => 0,
             },
-            _ => todo!(),
         }
     }
 }
@@ -253,7 +252,7 @@ mod cards_test {
         assert_eq!(c.is_ten(), false);
     }
 }
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Eq, Hash, Debug, PartialEq, Clone, Copy)]
 pub enum CardColor {
     DIAMONDS,
     HEARTS,
