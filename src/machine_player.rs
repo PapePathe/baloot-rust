@@ -10,7 +10,7 @@ use crate::message::PlayerMessage;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-use postage::dispatch::Sender;
+use crossbeam_channel::Sender;
 
 #[derive(Clone, Debug)]
 pub struct MachinePlayer {

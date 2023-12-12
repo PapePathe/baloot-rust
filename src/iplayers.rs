@@ -2,7 +2,7 @@ use crate::cards::Card;
 use crate::message::Message;
 use crate::message::PlayerMessage;
 
-use postage::dispatch::Sender;
+use crossbeam_channel::Sender;
 
 pub trait IPlayer {
     fn send_message(&mut self, m: Message);

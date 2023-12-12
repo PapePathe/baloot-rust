@@ -3,7 +3,7 @@ use crate::iplayers::IPlayer;
 use crate::message::Message;
 use crate::message::PlayerMessage;
 
-use postage::dispatch::Sender;
+use crossbeam_channel::Sender;
 
 #[derive(Debug, Clone)]
 pub struct Player {
