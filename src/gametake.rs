@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::cards::Card;
 use crate::cards::CardColor;
 use crate::cards::CardFamily;
@@ -43,6 +45,24 @@ impl Take {
         }
 
         false
+    }
+
+    pub fn evaluate_for_win(self, asked_card: Card, candidate: Card) -> Card {
+        match self.0 {
+            6 | 5 => {
+                if asked_card.color == candidate.color {
+                    if asked_card.evaluate_for_win(self.clone()) < candidate.evaluate_for_win(self)
+                    {
+                        candidate
+                    } else {
+                        asked_card
+                    }
+                } else {
+                    asked_card
+                }
+            }
+            _ => todo!(),
+        }
     }
 
     pub fn evaluate(self, cards: Vec<Card>) -> (bool, GameTake, u8) {
@@ -103,4 +123,18 @@ pub enum GameTake {
     Diamond(Take),
     Club(Take),
     Skip(Take),
+}
+
+impl Display for GameTake {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        match self {
+            GameTake::Tout(_) => f.write_str("Tout"),
+            GameTake::Cent(_) => f.write_str("Cent"),
+            GameTake::Spade(_) => f.write_str("Spade"),
+            GameTake::Club(_) => f.write_str("Club"),
+            GameTake::Diamond(_) => f.write_str("Diamond"),
+            GameTake::Heart(_) => f.write_str("Heart"),
+            GameTake::Skip(_) => f.write_str("Skip"),
+        }
+    }
 }

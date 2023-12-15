@@ -6,8 +6,11 @@ use belote::machine_player::MachinePlayer;
 use belote::message::PlayerMessage;
 
 use crossbeam_channel::unbounded;
+use paris::Logger;
 
 fn main() {
+    let mut log = Logger::new();
+
     loop {
         let (s, r) = unbounded::<PlayerMessage>();
 
@@ -22,12 +25,17 @@ fn main() {
             let received: &PlayerMessage = &r.recv().unwrap();
 
             if let PlayerMessage::SetPlayerTake(take) = received {
-                println!("Game started {}", g.started);
                 g.add_take(0, take.clone(), s.clone());
-                println!("Takes {:?}", g.takes);
+                log.indent(1)
+                    .info("Take constraints")
+                    .indent(2)
+                    .success(format!("{:?}", g.takes));
+
                 if g.started {
-                    println!("Game started {}", g.started);
-                    println!("Takes {:?}", g.takes);
+                    log.indent(1)
+                        .info(format!("Takes {:?}", g.takes))
+                        .indent(2)
+                        .info(format!("Starting gameplay with {:?}", g.take));
                     break 'taking_loop;
                 }
             }
@@ -38,13 +46,11 @@ fn main() {
 
             if let PlayerMessage::PlayCard(c) = received {
                 g.add_card(*c, s.clone());
-                println!("Received card");
-                println!("{:?}", c);
-                println!(
-                    "decks len: {:?} values: {:?}",
-                    g.decks.len(),
-                    g.decks[g.current_deck]
-                );
+                log.info("Received card")
+                    .indent(1)
+                    .success(format!("{:?}", c))
+                    .indent(2)
+                    .warn(format!("current deck {:?}", g.decks[g.current_deck]));
 
                 if g.finished {
                     break 'playing_loop;
@@ -52,7 +58,7 @@ fn main() {
             }
         }
 
-        thread::sleep(time::Duration::from_millis(1500));
+        thread::sleep(time::Duration::from_millis(15000));
         println!();
         println!();
         println!();

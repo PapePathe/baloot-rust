@@ -115,6 +115,11 @@ impl Game {
         self.decks[self.current_deck].push(c);
 
         println!("current deck {:?}", self.current_deck);
+
+        for p in &mut self.players {
+            p.send_message(Message::Deck(self.decks[self.current_deck].clone()))
+        }
+
         if self.decks[self.current_deck].len() < 4 {
             self.players[self.decks[self.current_deck].len()]
                 .send_message(Message::PleasePlay(channel));

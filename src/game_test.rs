@@ -29,7 +29,7 @@ fn test_new_game_with_human_players() {
 #[test]
 fn test_add_take_that_starts_the_game_by_machine_player() {
     let mut g: Game = Game::new();
-    let (s, r) = crossbeam_channel::unbounded::<PlayerMessage>();
+    let (s, _r) = crossbeam_channel::unbounded::<PlayerMessage>();
     let p = Box::new(MachinePlayer::new(vec![]));
     g.add_player(p.clone(), s.clone());
     g.add_player(p.clone(), s.clone());
@@ -48,7 +48,7 @@ fn test_add_take_that_starts_the_game_by_machine_player() {
 
 #[test]
 fn test_add_four_takes_to_start_the_game_with_machine_player() {
-    let (s, r) = crossbeam_channel::unbounded::<PlayerMessage>();
+    let (s, _r) = crossbeam_channel::unbounded::<PlayerMessage>();
     let mut g: Game = Game::new();
     let p1 = Box::new(MachinePlayer::new(vec![]));
     let p2 = Box::new(MachinePlayer::new(vec![]));
@@ -85,7 +85,7 @@ fn test_add_four_takes_to_start_the_game_with_machine_player() {
 #[test]
 fn test_add_four_takes_to_start_the_game() {
     let mut g: Game = Game::new();
-    let (s, r) = crossbeam_channel::unbounded::<PlayerMessage>();
+    let (s, _r) = crossbeam_channel::unbounded::<PlayerMessage>();
     let p1 = Box::new(MachinePlayer::new(vec![]));
     let p2 = Box::new(MachinePlayer::new(vec![]));
     let p3 = Box::new(MachinePlayer::new(vec![]));
@@ -121,7 +121,7 @@ fn test_add_four_takes_to_start_the_game() {
 #[test]
 fn test_add_take_that_starts_the_game_by_human_player() {
     let mut g: Game = Game::new();
-    let (s, r) = crossbeam_channel::unbounded::<PlayerMessage>();
+    let (s, _r) = crossbeam_channel::unbounded::<PlayerMessage>();
     let p = Box::new(MachinePlayer::new(vec![]));
     g.add_player(p, s.clone());
     g.add_take(0, GameTake::Tout(Take::TOUT), s.clone());
@@ -138,7 +138,7 @@ fn test_add_take_that_starts_the_game_by_human_player() {
 #[test]
 fn test_add_player() {
     let mut g = Game::new();
-    let (s, r) = crossbeam_channel::unbounded::<PlayerMessage>();
+    let (s, _r) = crossbeam_channel::unbounded::<PlayerMessage>();
     for i in 0..4 {
         let p = MachinePlayer::new(vec![]);
         g.add_player(Box::new(p), s.clone());

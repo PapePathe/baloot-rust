@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 
 use crossbeam_channel::Sender;
+use paris::Logger;
 
 #[derive(Clone, Debug)]
 pub struct MachinePlayer {
@@ -20,9 +21,16 @@ pub struct MachinePlayer {
 }
 
 impl MachinePlayer {
-    fn get_cards_tree(self) -> HashMap<CardColor, Vec<CardFamily>> {
+    fn get_cards_tree(self, playing_cards: bool) -> HashMap<CardColor, Vec<CardFamily>> {
         let mut hm: HashMap<CardColor, Vec<CardFamily>> = HashMap::new();
-        for c in self.cards {
+        let cards: Vec<Card>;
+        if playing_cards {
+            cards = self.playing_cards;
+        } else {
+            cards = self.cards
+        }
+
+        for c in cards {
             hm.entry(c.color)
                 .and_modify(|h: &mut Vec<CardFamily>| h.push(c.family))
                 .or_insert(vec![c.family]);
@@ -56,20 +64,32 @@ impl IPlayer for MachinePlayer {
     }
 
     fn send_message(&mut self, m: Message) {
+        let mut log = Logger::new();
+
         match m {
             Message::TakingCards(cards) => {
                 self.cards = cards.clone();
             }
             Message::PlayingCards(cards) => {
-                println!("Received playing cards {:?}, len: {}", cards, cards.len());
-                println!();
                 self.playing_cards = cards;
+                log.info("Machine Player:")
+                    .indent(1)
+                    .success("Received playing hand")
+                    .indent(2)
+                    .info(format!("cards: {:?}", self.clone().get_cards_tree(true)));
             }
             Message::Deck(deck) => {
+                log.info("Deck updated")
+                    .indent(1)
+                    .success(format!("cards: {:?}", deck));
                 self.deck = deck;
             }
             Message::PleaseTake(c) => {
-                println!("{:?}", self.clone().get_cards_tree());
+                log.info("Machine player")
+                    .indent(1)
+                    .info("Received please take message")
+                    .indent(2)
+                    .info(format!("{:?}", self.clone().get_cards_tree(false)));
                 let mut takes: Vec<(bool, GameTake, u8)> = vec![];
                 for t in Take::takes() {
                     let result = t.evaluate(self.get_cards());
@@ -88,13 +108,46 @@ impl IPlayer for MachinePlayer {
                 }
             }
             Message::PleasePlay(channel) => {
+                log.info("Machine Player")
+                    .indent(1)
+                    .success("Current hand before play")
+                    .indent(2)
+                    .success(format!(": {:?}", self.clone().get_cards_tree(true)))
+                    .success(format!("Current Deck: {:?}", self.deck));
+
+                let tree = self.clone().get_cards_tree(true);
+
+                if self.deck.is_empty() {
+                    log.info("Machine player")
+                        .indent(1)
+                        .warn("Going to select best card to play");
+                } else {
+                    if tree.contains_key(&self.deck[0].color) {
+                        log.info(format!("Player has card of family {}", self.deck[0].color));
+                    } else {
+                        log.info("Machine player")
+                            .indent(1)
+                            .warn("Going to select least valuable card to play");
+                    }
+                }
+
                 let c = self.playing_cards.pop();
-                println!("remaining cards {:?}", self.playing_cards);
+
                 if let Some(c) = c {
                     let _ = channel.send(PlayerMessage::PlayCard(c));
                 }
             }
         }
+    }
+}
+
+struct Deck {
+    cards: Vec<Card>,
+}
+
+impl Deck {
+    fn new(cards: Vec<Card>) -> Self {
+        Self { cards }
     }
 }
 

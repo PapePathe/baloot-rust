@@ -1,7 +1,72 @@
-use crate::cards::Card;
-use crate::cards::{CardColor, CardFamily};
+use crate::cards::{Card, CardColor, CardFamily};
 use crate::gametake::{GameTake, Take};
 use crate::hand_test;
+
+#[test]
+fn test_evaluate_for_win() {
+    assert_eq!(
+        Take::CENT.evaluate_for_win(
+            Card::new(CardColor::HEARTS, CardFamily::JACK),
+            Card::new(CardColor::HEARTS, CardFamily::NINE)
+        ),
+        Card::new(CardColor::HEARTS, CardFamily::JACK)
+    );
+
+    assert_eq!(
+        Take::CENT.evaluate_for_win(
+            Card::new(CardColor::HEARTS, CardFamily::NINE),
+            Card::new(CardColor::HEARTS, CardFamily::JACK)
+        ),
+        Card::new(CardColor::HEARTS, CardFamily::JACK)
+    );
+    assert_eq!(
+        Take::CENT.evaluate_for_win(
+            Card::new(CardColor::HEARTS, CardFamily::HEIGHT),
+            Card::new(CardColor::HEARTS, CardFamily::SEVEN),
+        ),
+        Card::new(CardColor::HEARTS, CardFamily::HEIGHT)
+    );
+
+    assert_eq!(
+        Take::CENT.evaluate_for_win(
+            Card::new(CardColor::HEARTS, CardFamily::SEVEN),
+            Card::new(CardColor::HEARTS, CardFamily::HEIGHT)
+        ),
+        Card::new(CardColor::HEARTS, CardFamily::HEIGHT)
+    );
+
+    assert_eq!(
+        Take::TOUT.evaluate_for_win(
+            Card::new(CardColor::HEARTS, CardFamily::HEIGHT),
+            Card::new(CardColor::HEARTS, CardFamily::SEVEN),
+        ),
+        Card::new(CardColor::HEARTS, CardFamily::HEIGHT)
+    );
+
+    assert_eq!(
+        Take::TOUT.evaluate_for_win(
+            Card::new(CardColor::HEARTS, CardFamily::SEVEN),
+            Card::new(CardColor::HEARTS, CardFamily::HEIGHT)
+        ),
+        Card::new(CardColor::HEARTS, CardFamily::HEIGHT)
+    );
+
+    assert_eq!(
+        Take::TOUT.evaluate_for_win(
+            Card::new(CardColor::HEARTS, CardFamily::JACK),
+            Card::new(CardColor::HEARTS, CardFamily::NINE)
+        ),
+        Card::new(CardColor::HEARTS, CardFamily::JACK)
+    );
+
+    assert_eq!(
+        Take::TOUT.evaluate_for_win(
+            Card::new(CardColor::HEARTS, CardFamily::NINE),
+            Card::new(CardColor::HEARTS, CardFamily::JACK)
+        ),
+        Card::new(CardColor::HEARTS, CardFamily::JACK)
+    );
+}
 
 #[test]
 fn test_evaluate_clubs() {
